@@ -6,10 +6,11 @@ const Contact = require("../model/contactModel")
 //@route GET /api/contacts
 //@access public
 
-const getContact = async (req, res) => {
-    const contacts = await Contact.find();
-    res.status(200).json(contacts);
-  };
+const getContact = asyncHandler(async (req, res) => {
+  const contacts = await Contact.find();
+  res.status(200).json(contacts);
+});
+
 
 //@desc create contacts
 //@route POST /api/contacts
@@ -23,8 +24,13 @@ const createContact =  async (req, res, next) => {
         res.status(400);
         return next(error)
     }
+    const contact = Contact.create({
+      name,
+      email, 
+      number
+    })
 
-    res.status(201).json({ message: "create Contact" });
+    res.status(201).json(contact);
   } catch (err) {
     next(err)
   }
@@ -35,7 +41,16 @@ const createContact =  async (req, res, next) => {
 //@access public
 
 const updateContact =asyncHandler( async (req, res) => {
-  res.status(200).json({ message: `updated contacts of  ${req.params.id}` });
+  const Updatedcontact = await Contact.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {new: true}
+  )
+  if(!contact){
+    res.statusCode(404)
+    throw new Error("contact not found")
+  }
+  res.status(200).json(Updatedcontact);
 });
 
 //@desc delete contacts
@@ -51,7 +66,12 @@ const deleteContact = asyncHandler(async (req, res) => {
 //@access public
 
 const getOneContact = asyncHandler( async (req, res) => {
-  res.status(200).json({ message: `got contact of ${req.params.id}` });
+  const contact = await Contact.findById(req.params.id)
+  if(!contact){
+    res.statusCode(404)
+    throw new Error("contact not found")
+  }
+  res.status(200).json(contact);
 });
 
 module.exports = {
